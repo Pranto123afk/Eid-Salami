@@ -1,0 +1,203 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin to Win!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 30px;
+        }
+        
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border: 8px solid #333;
+            box-shadow: 0 0 0 8px #fff, 0 0 0 10px #333;
+            transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+        }
+        
+        .section {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            padding-left: 45px;
+            font-weight: bold;
+            font-size: 16px;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+        }
+        
+        .section:nth-child(1) {
+            background-color: #FF6384;
+            transform: rotate(0deg);
+        }
+        
+        .section:nth-child(2) {
+            background-color: #36A2EB;
+            transform: rotate(90deg);
+        }
+        
+        .section:nth-child(3) {
+            background-color: #FFCE56;
+            transform: rotate(180deg);
+        }
+        
+        .section:nth-child(4) {
+            background-color: #4BC0C0;
+            transform: rotate(270deg);
+        }
+        
+        .label {
+            transform: rotate(45deg);
+            white-space: nowrap;
+            font-size: 18px;
+            color: white;
+        }
+        
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #333;
+            z-index: 1;
+        }
+        
+        button {
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            height: 30px;
+            color: #333;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Spin to Win Big Prizes!</h1>
+        <div class="wheel-container">
+            <div class="wheel" id="wheel">
+                <div class="section"><div class="label">500 Tk</div></div>
+                <div class="section"><div class="label">300 Tk</div></div>
+                <div class="section"><div class="label">100 Tk</div></div>
+                <div class="section"><div class="label">1 Tk</div></div>
+            </div>
+            <div class="pointer"></div>
+        </div>
+        <button id="spin-btn">SPIN THE WHEEL</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const wheel = document.getElementById('wheel');
+        const spinBtn = document.getElementById('spin-btn');
+        const result = document.getElementById('result');
+        
+        // Keep track of current rotation
+        let currentRotation = 0;
+        let spinCompleted = false; // Flag to prevent multiple spins
+        
+        spinBtn.addEventListener('click', () => {
+            if (spinCompleted) return; // Prevent multiple spins
+            
+            // Disable button during spin
+            spinBtn.disabled = true;
+            result.textContent = '';
+            
+            // Reset transition to make consecutive spins work properly
+            wheel.style.transition = 'none';
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+            
+            // Force a reflow to ensure the transition reset takes effect
+            void wheel.offsetWidth;
+            
+            // Restore the transition
+            wheel.style.transition = 'transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+            
+            // Calculate a rigged rotation to land on 1 Tk (section 4)
+            const fullRotations = 3; // Number of full rotations for show
+            
+            // The "1 Tk" section should land between 45° to 135°.
+            // To achieve this, we want the final angle to be between 45 and 135 degrees.
+            // We can choose 90° as the center of the "1 Tk" section to land on it.
+            const targetAngle = 90; // Target landing angle for the "1 Tk" section
+            
+            // Calculate new total rotation
+            // We add full rotations + the angle needed to land on 1 Tk
+            currentRotation = (currentRotation % 360) + (360 * fullRotations) + targetAngle;
+            
+            // Apply the rotation
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+            
+            // Mark spin as completed to prevent further spins
+            spinCompleted = true;
+            
+            // Show result after animation completes
+            setTimeout(() => {
+                result.textContent = 'Congratulations! You won 1 Tk!';
+                // The spin button remains disabled after the spin
+                spinBtn.disabled = true;
+            }, 3100); // Slightly longer than transition time
+        });
+    </script>
+</body>
+</html>
